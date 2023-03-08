@@ -1,6 +1,8 @@
 package channel
 import(
 	//"sync"
+	"os"
+	"fmt"
 )
 
 type stageFunc func(done chan bool, source <- chan int) <-chan int
@@ -10,6 +12,9 @@ type ArrayStage struct {
 }
 
 func CreateStage(ar ... stageFunc) *ArrayStage {
+	for _, v := range os.Args {
+		fmt.Println(v)		
+	}
 	ret := new(ArrayStage)
 	ret.Funcs = ar	
 	return ret
