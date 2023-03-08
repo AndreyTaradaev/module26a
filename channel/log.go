@@ -34,5 +34,5 @@ func Log(message string) {
 		return
 	}
 	start := time.Now()
-	fmt.Println(string(ColorGreen), start .Format("2006/01/01  15:04:05"), string(ColorBlue), message,string(ColorReset) )
+	fmt.Println(string(ColorGreen), start .Format("2006/01/01  15:04:05"),"\t", string(ColorBlue), message,string(ColorReset) )
 }
