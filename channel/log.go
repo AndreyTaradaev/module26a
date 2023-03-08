@@ -3,6 +3,7 @@ package channel
 import (
 	"flag"
 	"fmt"
+	"time"
 )
 
 var debug bool
@@ -19,14 +20,19 @@ const (
 )
 
 func init() {
-	flag.BoolVar(&debug, "debug", false, "Enable log view")
+	usedebug := flag.Bool("debug", false, "Enable log view")
+	flag.Parse()
+	debug = *usedebug
 	if debug {
-		fmt.Println("Enable log")
+		Log("Enable log")
 
 	}
-
 }
 
 func Log(message string) {
-
+	if !debug {
+		return
+	}
+	start := time.Now()
+	fmt.Println(string(ColorGreen), start .Format("2006/01/01  15:04:05"), string(ColorBlue), message,string(ColorReset) )
 }
