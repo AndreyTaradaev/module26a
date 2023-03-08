@@ -38,7 +38,7 @@ func ReadConsole(exit chan bool, c <-chan int) <-chan int {
 				Log(ReadConsole, "Skip, this not number!")
 				continue
 			}
-			Log(ReadConsole,"Read console input data: "+ data+" ,the next stage")
+			Log(ReadConsole,"Sussed  "+ data+" ,the next stage")
 			dst <- i
 		}
 	}()
