@@ -1,27 +1,22 @@
 package channel
-import(
-	//"sync"
-	"os"
-	"fmt"
-)
 
-type stageFunc func(done chan bool, source <- chan int) <-chan int
+//"sync"
+
+type stageFunc func(done chan bool, source <-chan int) <-chan int
 
 type ArrayStage struct {
-	Funcs []stageFunc	
+	Funcs []stageFunc
 }
 
-func CreateStage(ar ... stageFunc) *ArrayStage {
-	for _, v := range os.Args {
-		fmt.Println(v)		
-	}
+func CreateStage(ar ...stageFunc) *ArrayStage {
+	Log(CreateStage,"Create stage implement")
 	ret := new(ArrayStage)
-	ret.Funcs = ar	
+	ret.Funcs = ar
 	return ret
 }
 
-
-func (a *ArrayStage) Run(exit chan bool, source <- chan int) <-chan int {
+func (a *ArrayStage) Run(exit chan bool, source <-chan int) <-chan int {
+	Log(a.Run," Run pipe")
 	var c <-chan int = source
 	for _, f := range a.Funcs {
 		c = f(exit, c)

@@ -18,7 +18,7 @@ func ReadConsole(exit chan bool, c <-chan int) <-chan int {
 	dst := make(chan int)
 	// run thread read console
 	fmt.Println("конвейер для обработки чисел, \nисточник -- консоль\nприемник -- кольцевой буффер \nдля выхода наберите \"exit\"")
-
+	Log(ReadConsole, "Run gorutine for read console")
 	go func() {
 		defer close(exit)
 		scanner := bufio.NewScanner(os.Stdin)
@@ -27,14 +27,18 @@ func ReadConsole(exit chan bool, c <-chan int) <-chan int {
 			scanner.Scan()
 			data = scanner.Text()
 			if strings.EqualFold(data, "exit") {
+				Log(ReadConsole, "get event exit, close app..... ")
 				fmt.Println("Программа завершила работу!")
 				return
 			}
+			Log(ReadConsole, "Read console input data: "+ data)
 			i, err := strconv.Atoi(data)
 			if err != nil {
 				fmt.Println("Программа обрабатывает только целые числа!")
+				Log(ReadConsole, "Skip, this not number!")
 				continue
 			}
+			Log(ReadConsole,"Read console input data: "+ data+" ,the next stage")
 			dst <- i
 		}
 	}()
@@ -43,6 +47,7 @@ func ReadConsole(exit chan bool, c <-chan int) <-chan int {
 
 func FilterNegative(exit chan bool, c <-chan int) <-chan int {
 	dst := make(chan int)
+	Log(FilterNegative, "Run gorutine for filter negative")
 	go func() {
 		for {
 			select {
@@ -55,6 +60,7 @@ func FilterNegative(exit chan bool, c <-chan int) <-chan int {
 					}
 				} else {
 					fmt.Println("Число отрицательное!")
+					Log(FilterNegative, "This data is negative, skip")
 				}
 			case <-exit:
 				return
@@ -66,6 +72,7 @@ func FilterNegative(exit chan bool, c <-chan int) <-chan int {
 
 func FilterSpecial(exit chan bool, c <-chan int) <-chan int {
 	dst := make(chan int)
+	Log(FilterSpecial, "Run gorutine for filter divisions by 3")
 	go func() {
 		for {
 			select {
@@ -78,6 +85,7 @@ func FilterSpecial(exit chan bool, c <-chan int) <-chan int {
 					}
 				} else {
 					fmt.Println("Число не делится на 3!")
+					Log(FilterSpecial, "data not divisions by 3, skip...")
 				}
 
 			case <-exit:
@@ -91,11 +99,12 @@ func FilterSpecial(exit chan bool, c <-chan int) <-chan int {
 func ReadBuffer(exit chan bool, c <-chan int) <-chan int{
 b := CreateBuffer(SizeBuffer)
 dst := make (chan int )
-
+Log(ReadBuffer, "Run gorutine read and write ring buffer")
 go func (){
 	for{
 		select {
 		case d := <- c :  b.Push(d)
+		Log(ReadBuffer, "add  ring buffer " + fmt.Sprintf("%d",d) )
 		case <-exit :return
 		}
 	}
@@ -111,10 +120,12 @@ go func() {
 			// Если в кольцевом буфере что-то есть - 
 			// выводим
 			// содержимое построчно
+			Log(ReadBuffer, "read  ring buffer " )
 			if bufferData != nil {
 				for _, data := range bufferData {
 					select {
-					case dst <- data:
+
+					case dst <- data:						
 					case <-exit:
 						return
 					}
@@ -137,6 +148,7 @@ func WriteConsole(exit chan bool, c <-chan int) {
 		for {
 			select {
 			case d := <-c:
+				Log(WriteConsole, "get data  "+  fmt.Sprintf("%d",d) )
 				fmt.Printf("Обработаны данные: %d\n", d)				
 			case <-exit:
 				defer wg.Done()

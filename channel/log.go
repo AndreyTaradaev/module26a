@@ -4,7 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"time"
+	"runtime"
+	"reflect"
 )
+
 
 var debug bool
 
@@ -19,20 +22,29 @@ const (
 	ColorReset        = "\u001b[0m"
 )
 
+func currentFunction(i interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+}
+
 func init() {
 	usedebug := flag.Bool("debug", false, "Enable log view")
 	flag.Parse()
 	debug = *usedebug
 	if debug {
-		Log("Enable log")
+		Log("init","Enable log")
 
 	}
 }
 
-func Log(message string) {
+func Log(i interface{},message string) {
 	if !debug {
 		return
 	}
+	var function string 
+	switch i2 := i.(type) {
+	case string: function = i2 
+	default : function = currentFunction(i)		
+	}
 	start := time.Now()
-	fmt.Println(string(ColorGreen), start .Format("2006/01/01  15:04:05"),"\t", string(ColorBlue), message,string(ColorReset) )
+	fmt.Println(string(ColorGreen), start .Format("2006/01/01  15:04:05"),"\t", string(ColorBlue), function , string(ColorYellow), message,string(ColorReset) )
 }
